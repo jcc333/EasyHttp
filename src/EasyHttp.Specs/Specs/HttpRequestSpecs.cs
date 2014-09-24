@@ -57,6 +57,8 @@
 #endregion
 
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Net;
 using EasyHttp.Http;
 using EasyHttp.Specs.Helpers;
@@ -272,6 +274,45 @@ namespace EasyHttp.Specs.Specs
         static HttpResponse response;
     }
 
+    [Subject("HttpClient")]
+    public class when_making_a_GET_request_with_valid_uri_and_content_type_set_to_application_json_and_a_body
+    {
+        Establish context = () =>
+        {
+            httpClient = new HttpClient();
+            httpClient.Request.Accept = HttpContentTypes.ApplicationJson;
+
+        };
+
+        Because of = () =>
+        {
+            var ints = (new int[] { 1, 2, 3, 4, 5 }).ToDictionary(i => i.ToString(), i => i);
+            response = httpClient.Get("http://localhost:16000/hello", ints, "text/json");
+        };
+
+
+        It should_return_dynamic_body_with_json_object = () =>
+        {
+            dynamic body = response.DynamicBody;
+
+            string result = body.Result;
+
+            result.ShouldEqual("Hello, ");
+
+        };
+
+
+        It should_return_static_body_with_json_object = () =>
+        {
+            var couchInformation = response.StaticBody<ResultResponse>();
+
+            couchInformation.Result.ShouldEqual("Hello, ");
+
+        };
+
+        static HttpClient httpClient;
+        static HttpResponse response;
+    }
   
     [Subject("HttpClient")]
     public class when_making_a_HEAD_request_with_valid_uri

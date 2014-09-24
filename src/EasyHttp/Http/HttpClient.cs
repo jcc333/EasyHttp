@@ -102,7 +102,7 @@ namespace EasyHttp.Http
         public HttpResponse Response { get; private set; }
         public HttpRequest Request { get; private set; }
 
-        void InitRequest(string uri, HttpMethod method, object query)
+        protected internal void InitRequest(string uri, HttpMethod method, object query)
         {
             Request.Uri = _uriComposer.Compose(_baseUri, uri, query, Request.ParametersAsSegments);
             Request.Data = null;
@@ -125,6 +125,13 @@ namespace EasyHttp.Http
         public HttpResponse Get(string uri, object query = null)
         {
             InitRequest(uri, HttpMethod.GET, query);
+            return ProcessRequest();
+        }
+
+        public HttpResponse Get(string uri, object data,  string contentType, object query = null)
+        {
+            InitRequest(uri, HttpMethod.GET, query);
+            InitData(data, contentType);
             return ProcessRequest();
         }
 
@@ -164,7 +171,7 @@ namespace EasyHttp.Http
             return ProcessRequest();
         }
 
-        void InitData(object data, string contentType)
+        protected internal void InitData(object data, string contentType)
         {
             if (data != null)
             {
@@ -197,7 +204,7 @@ namespace EasyHttp.Http
             return ProcessRequest();
         }
 
-        HttpResponse ProcessRequest(string filename = "")
+        protected internal HttpResponse ProcessRequest(string filename = "")
         {
             var httpWebRequest = Request.PrepareRequest();
 
@@ -220,7 +227,7 @@ namespace EasyHttp.Http
             Request.ClientCertificates.AddRange(certificates);
         }
 
-        bool IsHttpError()
+        protected internal bool IsHttpError()
         {
             var num = (int) Response.StatusCode / 100;
 
